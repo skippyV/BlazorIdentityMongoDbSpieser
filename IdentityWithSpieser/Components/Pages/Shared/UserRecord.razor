@@ -1,0 +1,92 @@
+﻿
+
+<div class="div-inline-block">
+    <div class="div-inline-block">Name: @User.UserName,</div>
+    <div class="div-inline-block">Email: @User.Email,</div>
+    <div class="div-inlin-block">Age: @User.Age</div>
+    <div class="div-inline-block">
+        @* <RadzenCheckBox  @bind-Value=@IsSelected Change="SelectionHasChanged" /> *@
+
+        <RadzenCheckBox TValue="bool" @bind-Value=@Selected  Change="ToggleHasHappened" />
+        <RadzenLabel  Text="Selected" />
+
+        @* <input type="checkbox" Checked="@selected" @oninput="ToggleHasHappened" /> *@
+
+        <p>@msg</p>
+    </div>
+</div>
+
+@code {
+    // https://www.telerik.com/blogs/blazor-basics-event-callbacks
+    // https://stackoverflow.com/questions/59559195/blazor-component-parameter-should-not-be-set-outside-of-its-component
+    // https://stackoverflow.com/questions/71224684/blazor-checkbox-two-way-binding-and-change-event/75637023
+    // https://stackoverflow.com/questions/51234654/net-core-blazor-how-to-get-the-checkbox-value-if-it-is-checked
+
+    // private bool selected;
+    string msg = "";
+
+    [Parameter]
+    public ApplicationUser? User { get; set; }
+
+    [Parameter] 
+    public bool Selected { get; set; } 
+
+    [Parameter]
+    public EventCallback<UserRecordEventCallbackArgs> AfterSelected { get; set; }
+
+    // protected override void OnParametersSet() => selected = Selected;
+
+    private async Task ToggleHasHappened()
+    {
+        MongoDB.Bson.ObjectId userId = User.Id;
+
+        var test = Selected;
+
+        if (Selected) // Only make callback for selections, not un-selections
+        {
+            await AfterSelected.InvokeAsync(new UserRecordEventCallbackArgs { UserId = userId, IsSelected = Selected });
+        }
+
+    }
+
+    // protected override Task OnParametersSetAsync()
+    // {
+    //     StateHasChanged();
+    //     return base.OnParametersSetAsync();
+    // }
+
+    // private async Task InvokeOnClick()
+    // {
+    //     IsSelected = true;
+    //     await OnClick.InvokeAsync(User);
+    // }
+
+    // Radzen syntax for 
+    //   Value=@value
+    // did NOT work for me. TEST AND UPDATE RADZEN Author
+    // https://blazor.radzen.com/checkbox?theme=material3
+
+    // protected async Task SelectionHasChanged()
+    // {
+    //     if(User is not null)
+    //     {
+    //         MongoDB.Bson.ObjectId userId = User.Id;
+    //         if (IsSelected)
+    //         {
+    //             msg = "YES -selected";
+    //             await afterSelected.InvokeAsync(userId);
+    //         }
+    //         else
+    //         {
+    //             msg = "NO";
+    //         }
+            
+    //     }
+        
+    // }
+
+    // protected async Task DoneButtonClicked()
+    // {
+    //     await afterSelected.InvokeAsync();
+    // }
+}

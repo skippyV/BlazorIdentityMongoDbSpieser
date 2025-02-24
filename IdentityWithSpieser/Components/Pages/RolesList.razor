@@ -1,0 +1,55 @@
+﻿@page "/roles-list"
+@rendermode InteractiveServer
+
+@inject NavigationManager NavigationManager
+@inject RoleManager<ApplicationRole> _roleManager;
+
+<h3>Users</h3>
+
+@if (IsLoading)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading</span>
+        </div>
+    </div>
+}
+else
+{
+
+    <Virtualize Context="scooby" ItemsProvider="LoadRoles">
+        <ItemContent>
+            <div><span>Role name: @scooby.Name</span></div>
+        </ItemContent>
+        <Placeholder>
+            <p>Loading&hellip;</p>
+        </Placeholder>
+        <EmptyContent>
+            <p>
+                There are no Roles.
+            </p>
+        </EmptyContent>
+    </Virtualize>
+
+}
+<p class="text-er">@ErrorMessage</p>
+
+<h5>The Bottom</h5>
+
+@code {
+
+
+    List<ApplicationRole> listOfRoles;
+    private bool IsLoading { get; set; } = false;
+    private string ErrorMessage { get; set; }
+
+
+    private async ValueTask<ItemsProviderResult<ApplicationRole>> LoadRoles(ItemsProviderRequest request)
+    {
+
+        var users = await Task.Run(() => _roleManager.Roles);
+        int count = _roleManager.Roles.Count();
+        return new ItemsProviderResult<ApplicationRole>(users, count);
+    }
+
+}

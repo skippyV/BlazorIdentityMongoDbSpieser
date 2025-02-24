@@ -1,11 +1,11 @@
-﻿@page "/create-user"
+﻿@page "/edit-user"
 
 @inject NavigationManager NavigationManager
 @inject UserManager<ApplicationUser> _userManager;
 
 
-<EditForm id="create-user-form" Model="userDto" OnSubmit="FormSubmitted" FormName="CreateUserForm">
-    <h4>Create New User</h4>
+<EditForm id="edit-user-form" Model="userDto" OnSubmit="FormSubmitted" FormName="EditUserForm">
+    <h4>Edit User</h4>
     <div>
         <label>
             Name:
@@ -58,9 +58,9 @@
                 {
                     UserName = userDto.Name,
                     Email = userDto.Email,
-                    Age = userDto.Age
+                    Age = 32
                 };
-            var result = await _userManager.CreateAsync(appUser, userDto.Password);
+            var result = await _userManager.UpdateAsync(appUser);
             if (result.Succeeded)
             {
                 // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=532713
@@ -92,7 +92,7 @@
                 {
                     NavigationManager.NavigateTo($"/Error");
                 }
-                
+
             }
         }
     }

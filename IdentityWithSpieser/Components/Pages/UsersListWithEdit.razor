@@ -1,0 +1,129 @@
+﻿@page "/users-list-with-edit"
+@rendermode InteractiveServer
+
+
+@code 
+{
+    //MAYBE instead of Dynamic we ues enet's code from https://stackoverflow.com/questions/59805275/blazor-editform-bind-from-list
+    // naw - Dynamic is meant for a different use. Un-needed for this.
+    // https://stackoverflow.com/questions/60064510/add-ref-to-a-blazor-component-in-a-loop/60083369#60083369
+}
+
+@inject NavigationManager NavigationManager
+@inject UserManager<ApplicationUser> _userManager;
+
+<h4>Users (Listed with Edit Capability)</h4>
+
+@if (IsLoading)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading</span>
+        </div>
+    </div>
+}
+else
+{
+    if(listOfUsers?.Count > 0)
+    {
+        for (int i=0; i< listOfUsers.Count; i++)
+        {
+
+        }
+        foreach (var record in listOfUsers)
+        {
+            @* <UserRecord User="@record"
+            Selected="false"
+            AfterSelected="UpdateSelection"
+                        @ref="UserRecordRef" /> *@
+
+            <UserRecord User="@record"
+            AfterSelected="UpdateSelection"
+            @ref="UserRecordRef" />
+        }
+    }
+}
+
+<h5>END OF Users (Listed with Edit Capability)</h5>
+
+<div>Selected User TOP</div>
+@if(selectedUser is not null)
+{
+    <div>Selected User</div>
+    <UserRecord User="@selectedUser" />
+}
+else
+{
+    <div>Selected User Is null</div>
+}
+<div>Selected User BOTTOM</div>
+
+<p class="text-er">@ErrorMessage</p>
+
+<h5>The Bottom</h5>
+
+@code {
+    // https://stackoverflow.com/questions/60064510/add-ref-to-a-blazor-component-in-a-loop/60083369#60083369
+
+    List<UserRecord> listOfOfUsersRecordsRefs = new();
+
+    UserRecord UserRecordRef {
+        set { listOfOfUsersRecordsRefs.Add(value); }
+    }
+
+    List<ApplicationUser>? listOfUsers;
+
+    private bool IsLoading { get; set; } = false;
+    private string? ErrorMessage { get; set; }
+
+    ApplicationUser? selectedUser = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        IsLoading = true;
+        try
+        {
+            List<ApplicationUser> result = await Task.Run(() => _userManager.Users.ToList());
+            if (result.Count > 0)
+            {
+                listOfUsers = result;
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+
+
+    void SelectRecord(ApplicationUser user)
+    {
+        selectedUser = user;
+    }
+
+    void UpdateSelection(UserRecordEventCallbackArgs args)
+    {
+        var userId = args.UserId;
+        var isSelected = args.IsSelected;
+
+        // this is used to UN-select other UserRecords
+
+        foreach (var refRec in listOfOfUsersRecordsRefs)
+        {
+            if(refRec.User.Id != userId)
+            {
+                refRec.Selected = false;
+            }
+            else
+            {
+                selectedUser = refRec.User;
+            }
+        }
+
+    }
+}

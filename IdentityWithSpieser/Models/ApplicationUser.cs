@@ -13,5 +13,6 @@ namespace IdentityWithSpieser.Models
         public ApplicationUser(string userName, string email) : base(userName, email)
         {
         }
+        public int Age { get; set; } = -1;
     }
 }

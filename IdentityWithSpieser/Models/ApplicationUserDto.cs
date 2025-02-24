@@ -2,7 +2,7 @@
 
 namespace IdentityWithSpieser.Models
 {
-    public class User
+    public class ApplicationUserDto
     {
         [Required]
         public string Name { get; set; }
@@ -13,5 +13,7 @@ namespace IdentityWithSpieser.Models
 
         [Required]
         public string Password { get; set; }
+
+        public int Age { get; set; }
     }
 }

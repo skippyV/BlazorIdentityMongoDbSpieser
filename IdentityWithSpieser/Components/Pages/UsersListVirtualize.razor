@@ -1,0 +1,103 @@
+﻿@page "/users-list-virtualize"
+@rendermode InteractiveServer
+
+@inject NavigationManager NavigationManager
+@inject UserManager<ApplicationUser> _userManager;
+
+<h3>Users (using Virtualize)</h3>
+
+@if (IsLoading)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading</span>
+        </div>
+    </div>
+}
+else
+{
+    // First version 
+    @* <Virtualize Items="listOfUsers" Context="itemInstance" OverscanCount="15">
+        <div style="display:flex;">
+            <div style="width: 400px;">Username: @itemInstance.UserName</div>
+        </div>
+    </Virtualize>  *@
+
+    // Second version with ItemContent
+    // I believe the ItemContent allows use of tags <Placeholder> and/or <EmptyContent>
+    //  InvalidOperationException: Microsoft.AspNetCore.Components.Web.Virtualization.Virtualize`1[IdentityWithSpieser.Models.ApplicationUser] 
+    //  requires either the 'Items' or 'ItemsProvider' parameters to be specified and non-null.
+    @* <Virtualize Items="listOfUsers" Context="itemInstance" OverscanCount="15">
+        <ItemContent>
+            <div><span>Username: @itemInstance.UserName</span></div>
+        </ItemContent> *@
+    @*         <Placeholder>
+            <p>Loading&hellip;</p>
+        </Placeholder> *@
+    @* <EmptyContent>
+            <p>
+                There are no Users.
+            </p>
+        </EmptyContent>
+    </Virtualize> *@
+    <Virtualize Context="scooby" ItemsProvider="LoadUsers">
+        <ItemContent>
+            <div><span>Username: @scooby.UserName</span></div>
+            <div><span>email: @scooby.Email</span></div>
+            <div><span>Age: @scooby.Age</span></div>
+        </ItemContent>
+        <Placeholder>
+            <p>Loading&hellip;</p>
+        </Placeholder>
+        <EmptyContent>
+            <p>
+                There are no Users.
+            </p>
+        </EmptyContent>
+    </Virtualize>
+
+}
+<p class="text-er">@ErrorMessage</p>
+
+<h5>The Bottom</h5>
+
+@code {
+    // https://learn.microsoft.com/en-us/aspnet/core/blazor/components/virtualization?view=aspnetcore-8.0
+    // https://www.telerik.com/blogs/blazor-basics-improved-performance-component-virtualization
+    // https://aubreydrescher.medium.com/transitioning-from-razor-pages-to-blazor-ac7f58821e57
+    // https://www.youtube.com/watch?v=AAV6r5cFLaY
+
+    List<ApplicationUser> listOfUsers;
+    private bool IsLoading { get; set; } = false;
+    private string ErrorMessage { get; set; }
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     IsLoading = true;
+    //     try
+    //     {
+    //         List<ApplicationUser> result = await Task.Run(() => _userManager.Users.ToList());
+    //         if (result.Count > 0)
+    //         {
+    //             listOfUsers = result;
+    //         }
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         ErrorMessage = ex.Message;
+    //     }
+    //     finally
+    //     {
+    //         IsLoading = false;
+    //     }        
+    // }
+
+    private async ValueTask<ItemsProviderResult<ApplicationUser>> LoadUsers(ItemsProviderRequest request)
+    {
+
+        var users = await Task.Run(() => _userManager.Users);
+        int count = _userManager.Users.Count();
+        return new ItemsProviderResult<ApplicationUser>(users, count);
+    }
+
+}

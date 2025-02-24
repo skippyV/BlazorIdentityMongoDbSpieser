@@ -78,6 +78,9 @@ namespace IdentityWithSpieser
 
             builder.Services.AddScoped<UserManager<ApplicationUser>>();
             //builder.Services.AddSingleton<UserManager<ApplicationUser>>(); Using a Singleton must be done with a service provider or factory
+            // It appears that any framework wrapping Microsoft's Identity package must
+            // use Scoped services for Managers - if they inherit from the underlying Identity classes.
+            // https://www.stevejgordon.co.uk/reminder-to-take-care-when-registering-dependencies
 
             builder.Services.AddScoped<RoleManager<ApplicationRole>>();
 

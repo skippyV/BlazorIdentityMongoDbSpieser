@@ -1,8 +1,15 @@
-﻿@page "/edit-user"
-
-@inject NavigationManager NavigationManager
+﻿@inject NavigationManager NavigationManager
 @inject UserManager<ApplicationUser> _userManager;
 
+@* 
+    Since Password cannot be updated with this process, will make a default
+    password for new users and then have them change it. 
+    Look at _userManager.AddPasswordAsync(user, model.NewPassword);
+    of SetPasswordViewModel of Spieser's' MVC project
+
+    For Claims and Policy guidance:
+    https://www.yogihosting.com/aspnet-core-identity-policies/
+*@
 
 <EditForm id="edit-user-form" Model="userDto" OnSubmit="FormSubmitted" FormName="EditUserForm">
     <h4>Edit User</h4>
@@ -20,8 +27,8 @@
     </div>
     <div>
         <label>
-            Password:
-            <InputText @bind-Value="userDto.Password" />
+            Phone#:
+            <InputText @bind-Value="userDto.PhoneNumber" />
         </label>
     </div>
     <div>
@@ -39,28 +46,35 @@
     [SupplyParameterFromForm]
     private ApplicationUserDto userDto { get; set; }
 
-    protected override void OnInitialized() => userDto ??= new();
+    private ApplicationUser _user;
 
-    private string LastSubmitResult = "";
-    //private void Submit() => Logger.LogInformation("Id = {Id}", Model?.Id);
+    [Parameter]
+    public ApplicationUser? User 
+    { 
+        get => _user; 
+        set{
+            _user = value;
+            userDto = new ApplicationUserDto(_user);
+        }
+    }
+    //protected override void OnInitialized() => userDto ??= new();
+
+
     async Task FormSubmitted(EditContext editContext)
     {
-
         bool formIsValid = editContext.Validate();
-        LastSubmitResult =
-          formIsValid
-          ? "Success - form was valid"
-          : "Failure - form was invalid";
 
         if (formIsValid)
         {
-            ApplicationUser appUser = new ApplicationUser()
-                {
-                    UserName = userDto.Name,
-                    Email = userDto.Email,
-                    Age = 32
-                };
-            var result = await _userManager.UpdateAsync(appUser);
+            // Now we have to update the User with any potentially changed values of the DTO.
+            // But this process cannot be used for changing Passwords. 
+            User!.Age = userDto.Age;
+            User.Email = userDto.Email;
+            User.PhoneNumber = userDto.PhoneNumber;
+            User.UserName = userDto.Name;      
+           
+            var result = await _userManager.UpdateAsync(User);
+ 
             if (result.Succeeded)
             {
                 // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=532713

@@ -50,7 +50,8 @@ else
 @if(selectedUser is not null)
 {
     <div>Selected User</div>
-    <UserRecord User="@selectedUser" />
+    @* <UserRecord User="@selectedUser" /> *@
+    <EditUserForm User="@selectedUser" />
 }
 else
 {
@@ -101,10 +102,10 @@ else
 
 
 
-    void SelectRecord(ApplicationUser user)
-    {
-        selectedUser = user;
-    }
+    // void SelectRecord(ApplicationUser user)
+    // {
+    //     selectedUser = user;
+    // }
 
     void UpdateSelection(UserRecordEventCallbackArgs args)
     {

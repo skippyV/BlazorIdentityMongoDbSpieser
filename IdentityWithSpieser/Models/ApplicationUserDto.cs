@@ -15,5 +15,23 @@ namespace IdentityWithSpieser.Models
         public string Password { get; set; }
 
         public int Age { get; set; }
+
+        public string PhoneNumber { get; set; }
+
+        public ApplicationUserDto(){}
+
+        public ApplicationUserDto(ApplicationUser user)
+        {
+            if (user is not null)
+            {
+                Name = user.UserName!;
+                Email = user.Email!;
+                //Password = user.PasswordHash; 
+                Age = user.Age;
+                PhoneNumber = user.PhoneNumber!;
+            }
+        }
     }
+
+    
 }

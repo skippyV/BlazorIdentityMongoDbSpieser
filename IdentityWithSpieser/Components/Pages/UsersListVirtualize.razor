@@ -1,5 +1,6 @@
 ﻿@page "/users-list-virtualize"
-@rendermode InteractiveServer
+@* @rendermode InteractiveServer *@
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 
 @inject NavigationManager NavigationManager
 @inject UserManager<ApplicationUser> _userManager;

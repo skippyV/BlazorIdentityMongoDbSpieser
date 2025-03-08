@@ -1,5 +1,6 @@
 using AspNetCore.Identity.MongoDbCore.Extensions;
 using AspNetCore.Identity.MongoDbCore.Infrastructure;
+using AspNetCore.Identity.MongoDbCore.Models;
 using IdentityWithSpieser.Components;
 using IdentityWithSpieser.Models;
 using Microsoft.AspNetCore.Identity;
@@ -83,6 +84,22 @@ namespace IdentityWithSpieser
             // https://www.stevejgordon.co.uk/reminder-to-take-care-when-registering-dependencies
 
             builder.Services.AddScoped<RoleManager<ApplicationRole>>();
+
+            builder.Services.AddAuthentication(
+                options =>
+                {
+                    options.DefaultScheme = IdentityConstants.ApplicationScheme;
+                    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+                })
+                .AddIdentityCookies(o => { });
+
+
+            builder.Services.AddIdentityCore<ApplicationUser>()
+                    .AddRoles<ApplicationRole>()
+                    .AddMongoDbStores<ApplicationUser, ApplicationRole, ObjectId>(mongoDbIdentityConfiguration.MongoDbSettings.ConnectionString,
+                                                                                mongoDbIdentityConfiguration.MongoDbSettings.DatabaseName)
+                    .AddSignInManager()
+                    .AddDefaultTokenProviders();
 
             // Add services to the container.
             builder.Services.AddRazorComponents()
